@@ -1,14 +1,17 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+int n;
+
 struct Term {
     string bits;
     vector<int> cover;
 };
 
 string toBin(int x) {
-    string s = "0000";
-    for (int i = 3; i >= 0; i--) {
+    string s = "";
+    for (int i = 0; i < n; i++) s += "0";
+    for (int i = n - 1; i >= 0; i--) {
         s[i] = '0' + (x % 2);
         x /= 2;
     }
@@ -23,7 +26,7 @@ bool inCover(Term t, int m) {
 
 bool merge(Term a, Term b, Term &result) {
     int diff = 0, pos = -1;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < n; i++) {
         if (a.bits[i] != b.bits[i]) {
             if (a.bits[i] == '-' || b.bits[i] == '-') return false;
             diff++;
@@ -90,9 +93,9 @@ vector<Term> getPrimes(vector<int> mins) {
 }
 
 string toExpr(string bits) {
-    string vars = "abcd";
+    string vars = "abcde";
     string s = "";
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < n; i++) {
         if (bits[i] == '1') s += vars[i];
         else if (bits[i] == '0') { s += vars[i]; s += '\''; }
     }
@@ -123,15 +126,40 @@ void search(vector<int> remain, vector<int> chosen) {
 }
 
 int main() {
-    int order[4] = {0, 1, 3, 2};
-    vector<int> mins;
+    cout << "Enter number of variables (2 to 5): ";
+    cin >> n;
 
-    cout << "Enter the 4x4 k-map (16 values, 0 or 1):" << endl;
-    for (int r = 0; r < 4; r++) {
-        for (int c = 0; c < 4; c++) {
+    int colVars, rowVars;
+    if (n == 2) { colVars = 1; rowVars = 1; }
+    else if (n == 3) { colVars = 2; rowVars = 1; }
+    else if (n == 4) { colVars = 2; rowVars = 2; }
+    else { colVars = 3; rowVars = 2; }
+
+    int cols = 1;
+    for (int i = 0; i < colVars; i++) cols *= 2;
+    int rows = 1;
+    for (int i = 0; i < rowVars; i++) rows *= 2;
+
+    int gray1[2] = {0, 1};
+    int gray2[4] = {0, 1, 3, 2};
+    int gray3[8] = {0, 1, 3, 2, 6, 7, 5, 4};
+
+    int *colOrder, *rowOrder;
+    if (colVars == 1) colOrder = gray1;
+    else if (colVars == 2) colOrder = gray2;
+    else colOrder = gray3;
+
+    if (rowVars == 1) rowOrder = gray1;
+    else if (rowVars == 2) rowOrder = gray2;
+    else rowOrder = gray3;
+
+    vector<int> mins;
+    cout << "Enter the k-map (" << rows << " rows x " << cols << " cols, values 0 or 1):" << endl;
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
             int v;
             cin >> v;
-            if (v == 1) mins.push_back(order[c] * 4 + order[r]);
+            if (v == 1) mins.push_back(colOrder[c] * rows + rowOrder[r]);
         }
     }
 
